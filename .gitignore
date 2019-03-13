@@ -1,1 +1,13 @@
 /bronte
+__pycache__/
+
+checkpoints/
+data/
+logs/
+
+# Vim files
+*.swp
+*.swo
+
+# CTags
+tags
