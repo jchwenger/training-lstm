@@ -9,7 +9,7 @@ This script will train and dump the checkpoints to javascript
 """
 
 from __future__ import print_function
-import os
+import os, sys # sys.stdout below, instead of print
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 import tensorflow as tf
 import logging
@@ -152,10 +152,6 @@ def train(args):
                 writer.add_summary(summ, e * data_loader.num_batches + b)
 
                 end = time.time()
-                print("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}"
-                      .format(e * data_loader.num_batches + b,
-                              args.num_epochs * data_loader.num_batches,
-                              e, train_loss, end - start))
 
                 if (e * data_loader.num_batches + b) % args.save_every == 0\
                         or (e == args.num_epochs-1 and b == data_loader.num_batches-1):
@@ -168,7 +164,16 @@ def train(args):
                     checkpoint_path = os.path.join(args.save_dir, model_name)
                     saver.save(sess, checkpoint_path, global_step=e * data_loader.num_batches + b)
                     final_model = '{}-{}'.format(model_name, e * data_loader.num_batches + b)
-                    print("Model saved to {}!".format(checkpoint_path))
+                    print()
+                    print("Model saved to {}!".format(args.save_dir))
+
+                # rewritten in order to overwrite the current line
+                sys.stdout.write('\r')
+                sys.stdout.write("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}\t"
+                            .format(e * data_loader.num_batches + b,
+                                    args.num_epochs * data_loader.num_batches,
+                                    e, train_loss, end - start))
+                sys.stdout.flush()                
 
     # get the vocab
     model_vocab = getModelVocab(args.save_checkpoints, model_name)
